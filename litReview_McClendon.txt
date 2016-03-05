@@ -1,0 +1,21 @@
+3. Generate hypotheses & review literature State the hypotheses you want to
+test and include a brief literature review. Discuss appropriate types of tests. Due
+date: before first class of Week 6, 3 points.
+
+Hypothesis: The behavioral plasticity – based on neurocranial capacity – of mammals living in urban areas will be greater than those living in rural areas.
+
+Types of Analysis:
+One important thing for this project is normalizing the data with respect to body sizes. Animals with larger bodies will probably have larger neurocranial capacity, so I'll need to make sure to scale with respect to that.
+
+After normalizing, I think that plotting the relationships between multiple variables would be helpful. If I see any strong relations, I can try out making a regression model that might fit the relationship well.
+
+Literature Review: 
+Morphometric investigation of neurocranium in domestic cat (Felis catus) - http://www.banglajol.info/bd/index.php/BJVM/article/view/17302/12442
+
+Neurometric evaluations on the brain of the opossum (didelphys marsupialis cancrivora (linnaeus 1758) - a case for cognitive skill -brain development capacity - https://www.researchgate.net/publication/276648649_Neurometric_evaluations_on_the_brain_of_the_opossum_didelphys_marsupialis_cancrivora_linnaeus_1758_-_A_case_for_cognitive_skill_-brain_development_capacity
+
+The Cranial Morphometric and Morphologic Characteristics of Mehraban Sheep in Western Iran - https://www.researchgate.net/publication/235004202_The_cranial_morphometric_and_morphologic_Characteristics_of_Mehraban_sheep_in_Western_Iran
+
+Some aspects of the neurocraniometry of the African giant rat (Cricetomys gambianus Waterhouse) - https://journals.viamedica.pl/folia_morphologica/article/viewFile/15903/12541
+
+Estimation of body weights from craniometric variables in baboons - http://onlinelibrary.wiley.com/doi/10.1002/ajpa.1330600116/abstract;jsessionid=2EE30C1B1DC31F0D5C908AB792625994.f01t01

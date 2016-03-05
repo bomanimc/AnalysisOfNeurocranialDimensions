@@ -1,0 +1,10 @@
+Description of Dataset
+----------------------
+For my final project, I would like to look into how anthropogenic communities cause selection for increased behavioral plasticity in 10 species of mammals. The observed specimens come from University of Minnesota's Bell Museum of Natural History mammal collection. 
+
+The following data is collected for each mammal: Specimen ID, Sex, Family name, Latin Name, 'County' year collected, Population designation, neurocranium length, neurocranium height, neurocranium width, total body length, tail length, and hindfoot length. The dataset includes 544 observations taken from animals that were collected (for the Museum) between 1910 and 2005.
+
+
+Initial Hyphothesis
+-------------------
+My initial hypothesis is that the behavioral plasticity of mammals living in urban areas will be greater than those living in rural areas. Urban animals will have greater neurocranial capacity. 
