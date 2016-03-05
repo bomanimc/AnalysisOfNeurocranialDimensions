@@ -98,7 +98,48 @@ plot(neurocranium.width ~ Family.name, data = mm)
 stripchart(neurocranium.width  ~ Family.name, data = mm, vertical = TRUE, add = TRUE, 
            method = "jitter", pch = 19, jitter = 0.1, col = "gray")
 
-# 
+# I should subset each species and compare the City vs Rural dimensions 
+# within each species.
+muridae <- mm[mm$Family.name == "'MURIDAE'", ]
+muridaeH <- aggregate(neurocranium.height ~ Population.designation, muridae, mean)
+muridaeL <- aggregate(neurocranium.length ~ Population.designation, muridae, mean)
+muridaeW <-aggregate(neurocranium.width ~ Population.designation, muridae, mean)
+muridaeV <-aggregate(Volume ~ Population.designation, muridae, mean)
+muridaeOut <- merge(muridaeH, muridaeL, by=c("Population.designation"))
+muridaeOut <- merge(out, muridaeW, by=c("Population.designation"))
+muridaeOut <- merge(muridaeOut, muridaeV, by=c("Population.designation"))
+muridaeOut
+
+soricidae <- mm[mm$Family.name == "'SORICIDAE'", ]
+soricidaeH <- aggregate(neurocranium.height ~ Population.designation, soricidae, mean)
+soricidaeL <- aggregate(neurocranium.length ~ Population.designation, soricidae, mean)
+soricidaeW <-aggregate(neurocranium.width ~ Population.designation, soricidae, mean)
+soricidaeV <-aggregate(Volume ~ Population.designation, soricidae, mean)
+soricidaeOut <- merge(soricidaeH, soricidaeL, by=c("Population.designation"))
+soricidaeOut <- merge(soricidaeOut, soricidaeW, by=c("Population.designation"))
+soricidaeOut <- merge(soricidaeOut, soricidaeV, by=c("Population.designation"))
+soricidaeOut
+
+vesper <- mm[mm$Family.name == "'VESPERTILIONIDAE'", ]
+vesperH <- aggregate(neurocranium.height ~ Population.designation, vesper, mean)
+vesperL <- aggregate(neurocranium.length ~ Population.designation, vesper, mean)
+vesperW <-aggregate(neurocranium.width ~ Population.designation, vesper, mean)
+vesperV <-aggregate(Volume ~ Population.designation, vesper, mean)
+vesperOut <- merge(vesperH, vesperL, by=c("Population.designation"))
+vesperOut <- merge(vesperOut, vesperW, by=c("Population.designation"))
+vesperOut <- merge(vesperOut, vesperV, by=c("Population.designation"))
+vesperOut
+
+sciuridae <- mm[mm$Family.name == "'SCIURIDAE'", ]
+sciuridaeH <- aggregate(neurocranium.height ~ Population.designation, sciuridae, mean)
+sciuridaeL <- aggregate(neurocranium.length ~ Population.designation, sciuridae, mean)
+sciuridaeW <-aggregate(neurocranium.width ~ Population.designation, sciuridae, mean)
+sciuridaeV <-aggregate(Volume ~ Population.designation, sciuridae, mean)
+sciuridaeOut <- merge(sciuridaeH, sciuridaeL, by=c("Population.designation"))
+sciuridaeOut <- merge(sciuridaeOut, sciuridaeW, by=c("Population.designation"))
+sciuridaeOut <- merge(sciuridaeOut, sciuridaeV, by=c("Population.designation"))
+sciuridaeOut
+
 # aggregate(neurocranium.height ~ Population.designation, muridae, mean)
 # aggregate(neurocranium.height ~ Population.designation, muridae, length)
 # aggregate(neurocranium.height ~ Population.designation, muridae, sd)
