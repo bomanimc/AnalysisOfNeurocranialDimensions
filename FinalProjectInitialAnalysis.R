@@ -154,40 +154,37 @@ sciuridaeOut
 # Continuous Response, we will try using a linear model.
 
 # 4 Select Best Model
-mInteract <- lm(Volume ~ Family.name*Population.designation, offset = total.body.length, data = mm) 
-mNoInteract <- lm(Volume ~ Family.name + Population.designation, offset = total.body.length, data = mm) 
-mPop <- lm(Volume ~ Population.designation, offset = total.body.length, data = mm)
-mFam <- lm(Volume ~ Family.name, offset = total.body.length, data = mm)
-mNull <- lm(Volume ~ 1, offset = total.body.length, data = mm) 
+# mAllInteract <- lm(Volume ~ Family.name*Population.designation*total.body.length, data = mm) 
+# mSplitInteract <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.body.length + Family.name*total.body.length, data = mm) 
+# m1Interact <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.body.length                                   , data = mm) 
+# m2Interact <- lm(Volume ~ Family.name*Population.designation +                                               Family.name*total.body.length, data = mm) 
+# m3Interact <- lm(Volume ~                                      Population.designation*total.body.length + Family.name*total.body.length, data = mm) 
+# mFamPopInteract <- lm(Volume ~ Family.name*Population.designation, data = mm) 
+# mFamPop <- lm(Volume ~ Family.name + Population.designation, data = mm) 
 
-# mInteract <- lm(sqrt(Volume) ~ Family.name*Population.designation, offset = total.body.length, data = mm) 
-# mNoInteract <- lm(sqrt(Volume) ~ Family.name + Population.designation, offset = total.body.length, data = mm) 
-# mPop <- lm(sqrt(Volume) ~ Population.designation, offset = total.body.length, data = mm)
-# mFam <- lm(sqrt(Volume) ~ Family.name, offset = total.body.length, data = mm)
-# mNull <- lm(sqrt(Volume) ~ 1, offset = total.body.length, data = mm) 
+mm$total.cubed.root <- mm$total.body.length^(1/3)
+mAllInteract <- lm(Volume ~ Family.name*Population.designation*total.cubed.root, data = mm) 
+mSplitInteract <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.cubed.root + Family.name*total.cubed.root, data = mm) 
+m1Interact <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.cubed.root                                  , data = mm) 
+m2Interact <- lm(Volume ~ Family.name*Population.designation +                                               Family.name*total.cubed.root, data = mm) 
+m3Interact <- lm(Volume ~                                      Population.designation*total.cubed.root + Family.name*total.cubed.root, data = mm) 
 
-# mInteract <- lm(Volume^(1/3) ~ Family.name*Population.designation, offset = total.body.length, data = mm) 
-# mNoInteract <- lm(Volume^(1/3) ~ Family.name + Population.designation, offset = total.body.length, data = mm) 
-# mPop <- lm(Volume^(1/3) ~ Population.designation, offset = total.body.length, data = mm)
-# mFam <- lm(Volume^(1/3) ~ Family.name, offset = total.body.length, data = mm)
-# mNull <- lm(Volume^(1/3) ~ 1, offset = total.body.length, data = mm) 
+mFamPopLengthInteract <- lm(Volume ~ Family.name:total.cubed.root + Family.name + total.cubed.root + Population.designation, data = mm)
+mFamPopLength <- lm(Volume ~                                        Family.name + total.cubed.root + Population.designation, data = mm)
 
-anova(mInteract, mNoInteract)
-anova(mInteract, mPop)
-anova(mInteract, mPop)
-anova(mInteract, mNull)
-anova(mInteract, mNoInteract, mPop, mFam, mNull)
+anova(mAllInteract, mSplitInteract)
+# Not a significant difference
 
-# anova(mInteract, mNoInteract)
-# anova(mNoInteract, mPop)
-# anova(mNoInteract, mFam)
-# anova(mNoInteract, mNull)
+anova(mSplitInteract, m1Interact) 
+anova(mSplitInteract, m2Interact) #Not signifcant
+anova(mSplitInteract, m3Interact) #Not signifcant 
 
+anova(mFamPopLengthInteract, mFamPopLength)
+#mFamPopLengthInteract is our best model.
 
 # 5 Check Model
 par(mfcol = c(2,2))
-plot(mNoInteract) 
-# plot(mInteract) 
+plot(mFamPopLengthInteract) 
 par(mfcol = c(1,1))
 
 # By inspecting the plots, we see that the Residuals vs Fitted plot shows 
