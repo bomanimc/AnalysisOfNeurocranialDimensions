@@ -154,37 +154,39 @@ sciuridaeOut
 # Continuous Response, we will try using a linear model.
 
 # 4 Select Best Model
-# mAllInteract <- lm(Volume ~ Family.name*Population.designation*total.body.length, data = mm) 
-# mSplitInteract <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.body.length + Family.name*total.body.length, data = mm) 
-# m1Interact <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.body.length                                   , data = mm) 
-# m2Interact <- lm(Volume ~ Family.name*Population.designation +                                               Family.name*total.body.length, data = mm) 
-# m3Interact <- lm(Volume ~                                      Population.designation*total.body.length + Family.name*total.body.length, data = mm) 
-# mFamPopInteract <- lm(Volume ~ Family.name*Population.designation, data = mm) 
-# mFamPop <- lm(Volume ~ Family.name + Population.designation, data = mm) 
-
 mm$total.cubed.root <- mm$total.body.length^(1/3)
 mAllInteract <- lm(Volume ~ Family.name*Population.designation*total.cubed.root, data = mm) 
 mSplitInteract <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.cubed.root + Family.name*total.cubed.root, data = mm) 
-m1Interact <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.cubed.root                                  , data = mm) 
-m2Interact <- lm(Volume ~ Family.name*Population.designation +                                               Family.name*total.cubed.root, data = mm) 
-m3Interact <- lm(Volume ~                                      Population.designation*total.cubed.root + Family.name*total.cubed.root, data = mm) 
-
-mFamPopLengthInteract <- lm(Volume ~ Family.name:total.cubed.root + Family.name + total.cubed.root + Population.designation, data = mm)
-mFamPopLength <- lm(Volume ~                                        Family.name + total.cubed.root + Population.designation, data = mm)
 
 anova(mAllInteract, mSplitInteract)
 # Not a significant difference
+
+m1Interact <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.cubed.root                                  , data = mm) 
+m2Interact <- lm(Volume ~ Family.name*Population.designation +                                               Family.name*total.cubed.root, data = mm) 
+m3Interact <- lm(Volume ~                                      Population.designation*total.cubed.root + Family.name*total.cubed.root, data = mm) 
 
 anova(mSplitInteract, m1Interact) 
 anova(mSplitInteract, m2Interact) #Not signifcant
 anova(mSplitInteract, m3Interact) #Not signifcant 
 
+mFamPopLengthInteract <- lm(Volume ~ Family.name:total.cubed.root + Family.name + total.cubed.root + Population.designation, data = mm)
+mFamPopLength <- lm(Volume ~                                        Family.name + total.cubed.root + Population.designation, data = mm)
+
 anova(mFamPopLengthInteract, mFamPopLength)
-#mFamPopLengthInteract is our best model.
+#mFamPopLengthInteract is our current best model.
+
+mFamPopLengthInteract <- lm(Volume ~ Family.name:total.cubed.root + Family.name + total.cubed.root + Population.designation, data = mm)
+mPopLengthInteract <- lm(Volume ~ Family.name:total.cubed.root +                  total.cubed.root + Population.designation, data = mm)
+mFamPopInteract <-       lm(Volume ~ Family.name:total.cubed.root + Family.name                    + Population.designation, data = mm)
+mFamLengthInteract <-    lm(Volume ~ Family.name:total.cubed.root + Family.name + total.cubed.root                         , data = mm)
+
+anova(mFamPopLengthInteract, mPopLengthInteract, mFamPopInteract, mFamLengthInteract)
+# After this anova, we see that mFamLengthInteract is the best model.
+# This may indicate that population designation doesn't matter.
 
 # 5 Check Model
 par(mfcol = c(2,2))
-plot(mFamPopLengthInteract) 
+plot(mFamLengthInteract) 
 par(mfcol = c(1,1))
 
 # By inspecting the plots, we see that the Residuals vs Fitted plot shows 
