@@ -1,5 +1,5 @@
 # Initial Setup ####
-mm <- read.csv("/Users/Bomani/Dropbox/mcClendon_QMEC2016/McClendonFinalProject/finalProjectRawCSV.csv")
+mm <- read.csv("https://dl.dropbox.com/s/a6r2v7co7h91pbg/finalProjectRawCSV.csv")
 # , stringsAsFactors = FALSE
 
 #Removes rowas with N/A in the datafram
@@ -11,11 +11,6 @@ mm <- mm[!is.na(mm$hindfoot.length),]
 
 volumes = (mm$neurocranium.height * mm$neurocranium.length * mm$neurocranium.width)
 mm$Volume <- volumes
-plot(Volume ~ total.body.length, data=mm)
-
-# I notice that there are a few abnormally large volumes
-# These may be skewing the data, so I'm going to remove them.
-mm <- mm[mm$total.body.length < 600, ]
 
 #1 Visualize ####
 # Most popular specimens in the dataset
@@ -44,7 +39,9 @@ table(majorAreas$Population.designation)
 
 # Plot neurocranium volume's relationship to body size.
 plot(Volume ~ total.body.length, data=mm)
-# We can see that there is a correlation between each value and total body length
+plot(sqrt(Volume) ~ total.body.length, data=mm)
+plot(Volume^(1/3) ~ total.body.length, data=mm)
+16# We can see that there is a correlation between each value and total body length
 plot(neurocranium.height ~ total.body.length, data=mm)
 plot(neurocranium.length ~ total.body.length, data=mm)
 plot(neurocranium.width ~ total.body.length, data=mm)
@@ -105,9 +102,11 @@ muridaeH <- aggregate(neurocranium.height ~ Population.designation, muridae, mea
 muridaeL <- aggregate(neurocranium.length ~ Population.designation, muridae, mean)
 muridaeW <-aggregate(neurocranium.width ~ Population.designation, muridae, mean)
 muridaeV <-aggregate(Volume ~ Population.designation, muridae, mean)
+muridaeSd <-aggregate(Volume ~ Population.designation, muridae, sd)
 muridaeOut <- merge(muridaeH, muridaeL, by=c("Population.designation"))
 muridaeOut <- merge(out, muridaeW, by=c("Population.designation"))
 muridaeOut <- merge(muridaeOut, muridaeV, by=c("Population.designation"))
+muridaeOut <- merge(muridaeOut, muridaeSd, by=c("Population.designation"))
 muridaeOut
 
 soricidae <- mm[mm$Family.name == "'SORICIDAE'", ]
@@ -115,9 +114,11 @@ soricidaeH <- aggregate(neurocranium.height ~ Population.designation, soricidae,
 soricidaeL <- aggregate(neurocranium.length ~ Population.designation, soricidae, mean)
 soricidaeW <-aggregate(neurocranium.width ~ Population.designation, soricidae, mean)
 soricidaeV <-aggregate(Volume ~ Population.designation, soricidae, mean)
+soricidaeSd <-aggregate(Volume ~ Population.designation, soricidae, sd)
 soricidaeOut <- merge(soricidaeH, soricidaeL, by=c("Population.designation"))
 soricidaeOut <- merge(soricidaeOut, soricidaeW, by=c("Population.designation"))
 soricidaeOut <- merge(soricidaeOut, soricidaeV, by=c("Population.designation"))
+soricidaeOut <- merge(soricidaeOut, soricidaeSd, by=c("Population.designation"))
 soricidaeOut
 
 vesper <- mm[mm$Family.name == "'VESPERTILIONIDAE'", ]
@@ -125,9 +126,11 @@ vesperH <- aggregate(neurocranium.height ~ Population.designation, vesper, mean)
 vesperL <- aggregate(neurocranium.length ~ Population.designation, vesper, mean)
 vesperW <-aggregate(neurocranium.width ~ Population.designation, vesper, mean)
 vesperV <-aggregate(Volume ~ Population.designation, vesper, mean)
+vesperSd <-aggregate(Volume ~ Population.designation, vesper, sd)
 vesperOut <- merge(vesperH, vesperL, by=c("Population.designation"))
 vesperOut <- merge(vesperOut, vesperW, by=c("Population.designation"))
 vesperOut <- merge(vesperOut, vesperV, by=c("Population.designation"))
+vesperOut <- merge(vesperOut, vesperSd, by=c("Population.designation"))
 vesperOut
 
 sciuridae <- mm[mm$Family.name == "'SCIURIDAE'", ]
@@ -135,45 +138,56 @@ sciuridaeH <- aggregate(neurocranium.height ~ Population.designation, sciuridae,
 sciuridaeL <- aggregate(neurocranium.length ~ Population.designation, sciuridae, mean)
 sciuridaeW <-aggregate(neurocranium.width ~ Population.designation, sciuridae, mean)
 sciuridaeV <-aggregate(Volume ~ Population.designation, sciuridae, mean)
+sciuridaeSd <-aggregate(Volume ~ Population.designation, sciuridae, sd)
 sciuridaeOut <- merge(sciuridaeH, sciuridaeL, by=c("Population.designation"))
 sciuridaeOut <- merge(sciuridaeOut, sciuridaeW, by=c("Population.designation"))
 sciuridaeOut <- merge(sciuridaeOut, sciuridaeV, by=c("Population.designation"))
+sciuridaeOut <- merge(sciuridaeOut, sciuridaeSd, by=c("Population.designation"))
 sciuridaeOut
 
-# aggregate(neurocranium.height ~ Population.designation, muridae, mean)
-# aggregate(neurocranium.height ~ Population.designation, muridae, length)
-# aggregate(neurocranium.height ~ Population.designation, muridae, sd)
-# 
-# aggregate(neurocranium.height ~ Population.designation, soricidae, mean)
-# aggregate(neurocranium.height ~ Population.designation, soricidae, length)
-# aggregate(neurocranium.height ~ Population.designation, soricidae, sd)
-
 # 2 State Null & Alternate Hypotheses
-
+# Hypothesis - There is a difference in the neurocranial dimensions
+# of animals of the same species that grow up in city or rural environments.
 
 # 3 Choose Modeling Approach
-# Since we have a Categorical Predictor and a 
+# Since we have two Categorical Predictors, a continuous linear predictor and a 
 # Continuous Response, we will try using a linear model.
-# alt.model <- lm((neurocranium.height * neurocranium.length * neurocranium.width) ~ Population.designation, data = muridae)
-# null.model <- lm((neurocranium.height * neurocranium.length * neurocranium.width) ~ 1, data = muridae)
-# anova(null.model, alt.model)
 
 # 4 Select Best Model
-mInteract <- lm(Volume ~ Population.designation*total.body.length, data = muridae) 
-mNoInteract <- lm(Volume ~ Population.designation + total.body.length, data = muridae) 
-mPop <- lm(Volume ~ Population.designation, data = muridae)
-mBody <- lm(Volume ~ total.body.length, data = muridae)
-mNull <- lm(Volume ~ 1, data = muridae) 
+mInteract <- lm(Volume ~ Family.name*Population.designation, offset = total.body.length, data = mm) 
+mNoInteract <- lm(Volume ~ Family.name + Population.designation, offset = total.body.length, data = mm) 
+mPop <- lm(Volume ~ Population.designation, offset = total.body.length, data = mm)
+mFam <- lm(Volume ~ Family.name, offset = total.body.length, data = mm)
+mNull <- lm(Volume ~ 1, offset = total.body.length, data = mm) 
+
+# mInteract <- lm(sqrt(Volume) ~ Family.name*Population.designation, offset = total.body.length, data = mm) 
+# mNoInteract <- lm(sqrt(Volume) ~ Family.name + Population.designation, offset = total.body.length, data = mm) 
+# mPop <- lm(sqrt(Volume) ~ Population.designation, offset = total.body.length, data = mm)
+# mFam <- lm(sqrt(Volume) ~ Family.name, offset = total.body.length, data = mm)
+# mNull <- lm(sqrt(Volume) ~ 1, offset = total.body.length, data = mm) 
+
+# mInteract <- lm(Volume^(1/3) ~ Family.name*Population.designation, offset = total.body.length, data = mm) 
+# mNoInteract <- lm(Volume^(1/3) ~ Family.name + Population.designation, offset = total.body.length, data = mm) 
+# mPop <- lm(Volume^(1/3) ~ Population.designation, offset = total.body.length, data = mm)
+# mFam <- lm(Volume^(1/3) ~ Family.name, offset = total.body.length, data = mm)
+# mNull <- lm(Volume^(1/3) ~ 1, offset = total.body.length, data = mm) 
 
 anova(mInteract, mNoInteract)
-anova(mNoInteract, mPop)
-anova(mNoInteract, mBody)
-anova(mNoInteract, mNull)
+anova(mInteract, mPop)
+anova(mInteract, mPop)
+anova(mInteract, mNull)
+anova(mInteract, mNoInteract, mPop, mFam, mNull)
+
+# anova(mInteract, mNoInteract)
+# anova(mNoInteract, mPop)
+# anova(mNoInteract, mFam)
+# anova(mNoInteract, mNull)
 
 
 # 5 Check Model
 par(mfcol = c(2,2))
 plot(mNoInteract) 
+# plot(mInteract) 
 par(mfcol = c(1,1))
 
 # By inspecting the plots, we see that the Residuals vs Fitted plot shows 
