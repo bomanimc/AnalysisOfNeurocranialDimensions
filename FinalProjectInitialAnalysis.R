@@ -11,6 +11,7 @@ mm <- mm[!is.na(mm$hindfoot.length),]
 
 volumes = (mm$neurocranium.height * mm$neurocranium.length * mm$neurocranium.width)
 mm$Volume <- volumes
+mm$total.cubed.root <- mm$total.body.length^(1/3)
 
 #1 Visualize ####
 # Most popular specimens in the dataset
@@ -20,10 +21,10 @@ table(mm$Family.name)
 # Some of these species are barely observed, so I'm going to remove
 # them and consider the ones that have over 50 records.
 
-top4Species <-mm[mm$Family.name == "'VESPERTILIONIDAE'" | mm$Family.name == "'SORICIDAE'" | mm$Family.name == "'MURIDAE'"| mm$Family.name == "'SCIURIDAE'" , ]  
-top4Species$Family.name <- factor(top4Species$Family.name)
-table(top4Species$Family.name)
-mm <- top4Species
+topSpecies <-mm[mm$Family.name == "'VESPERTILIONIDAE'" | mm$Family.name == "'SORICIDAE'" | mm$Family.name == "'MURIDAE'"| mm$Family.name == "'SCIURIDAE'" | mm$Family.name == "'GEOMYIDAE'" , ]  
+topSpecies$Family.name <- factor(topSpecies$Family.name)
+table(topSpecies$Family.name)
+mm <- topSpecies
 # Now mm only contains the species with a decent amount of records.
 
 # This shows us that there aren't many records for ag and non-ag
@@ -38,23 +39,47 @@ table(majorAreas$Population.designation)
 
 
 # Plot neurocranium volume's relationship to body size.
+jpeg("transformationAttempts1.jpg")
+par(mfcol = c(1,1))
 plot(Volume ~ total.body.length, data=mm)
-plot(sqrt(Volume) ~ total.body.length, data=mm)
-plot(Volume^(1/3) ~ total.body.length, data=mm)
-16# We can see that there is a correlation between each value and total body length
+dev.off()
+
+# Plot neurocranium volume's relationship to body size.
+jpeg("transformationAttempts2.jpg")
+par(mfcol = c(1,1))
+plot(Volume ~ sqrt(total.body.length), data=mm)
+dev.off()
+
+# Plot neurocranium volume's relationship to body size.
+jpeg("transformationAttempts3.jpg")
+par(mfcol = c(1,1))
+plot(Volume ~ total.cubed.root, data=mm)
+dev.off()
+
+# Plot neurocranium volume's relationship to body size.
+jpeg("transformationAttempts4.jpg")
+par(mfcol = c(1,1))
+plot(Volume ~ log(total.body.length), data=mm)
+dev.off()
+
+# We can see that there is a correlation between each value and total body length
 plot(neurocranium.height ~ total.body.length, data=mm)
 plot(neurocranium.length ~ total.body.length, data=mm)
 plot(neurocranium.width ~ total.body.length, data=mm)
 # Interestingly, you can see that there are clusters in the chart
 # Could these be due to differences in species?
 
+
 # Trying out NMDS scaling to check for general differences
 library(vegan)
 subset <- mm[ ,c("total.body.length", "tail.length", "hindfoot.length", "Volume")]
+# subset <- mm[ ,c("total.body.length", "Volume")]
 mm.mds <- metaMDS(subset) 
 str(mm.mds)
 mm$nmds1 <- mm.mds$points[,1]
 mm$nmds2 <- mm.mds$points[,2]
+
+jpeg("nmdsGraphs.jpg")
 pairs(mm[, 22:23], col= rainbow(4)[mm$Population.designation], pch = 16)
 # You can see that there seems to be some disctinct group, but that there
 # is a mix of colors in each. These groups may indicate difference in species
@@ -65,24 +90,9 @@ fig <- ordiplot(mm.mds, type = "none")
 text(fig, "sites", label = as.character(1:dim(mm)[1]), col="black", bg="white", cex=1.1)
 text(fig, "sites", label = as.character(1:dim(mm)[1]), col=rainbow(4)[mm$Population.designation], bg="white", cex=1.1)
 # The ordiplot makes confirms the above.
+dev.off()
 
-
-# # add species abbreviations to plot 
-# text(fig, "species", labels=names(mm[, 22:23]), cex=1.2, font=3, col = "black")
-# 
-# ##calculate and plot significant "environmental" vectors 
-# fit <- envfit(mm.mds, mm[, 3], perm = 1000)
-# fit
-# plot(fit, p.max = 0.05, col = "blue", cex=1.2) # why no arrows?
-# 
-# # ?ordihull 
-# ordihull(mm.mds, mm$Family.name, display = "sites", draw = "polygon")
-# 
-# fig <- ordiplot(c.mds, type = "none")
-# text(fig, "sites", label = as.character(1:200), col=rainbow(15)[crabs$col_index], bg="white", cex=1.1)
-# 
-# ordihull(c.mds, crabs$sp, display = "sites", draw = "polygon")
-
+#Checking out Means and SDs for a few species####
 # I can see the populatations have distinct difference in dimensions
 # between the species.
 plot(neurocranium.height ~ Family.name, data = mm)
@@ -145,7 +155,7 @@ sciuridaeOut <- merge(sciuridaeOut, sciuridaeV, by=c("Population.designation"))
 sciuridaeOut <- merge(sciuridaeOut, sciuridaeSd, by=c("Population.designation"))
 sciuridaeOut
 
-# 2 State Null & Alternate Hypotheses
+# 2 State Null & Alternate Hypotheses####
 # Hypothesis - There is a difference in the neurocranial dimensions
 # of animals of the same species that grow up in city or rural environments.
 
@@ -154,11 +164,12 @@ sciuridaeOut
 # Continuous Response, we will try using a linear model.
 
 # 4 Select Best Model
-mm$total.cubed.root <- mm$total.body.length^(1/3)
 mAllInteract <- lm(Volume ~ Family.name*Population.designation*total.cubed.root, data = mm) 
 mSplitInteract <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.cubed.root + Family.name*total.cubed.root, data = mm) 
 
-anova(mAllInteract, mSplitInteract)
+at1 <- anova(mAllInteract, mSplitInteract)
+names(at1)[6] <- "P-value"
+at1
 # Not a significant difference
 
 m1Interact <- lm(Volume ~ Family.name*Population.designation + Population.designation*total.cubed.root                                  , data = mm) 
@@ -181,6 +192,8 @@ mFamPopInteract <-       lm(Volume ~ Family.name:total.cubed.root + Family.name 
 mFamLengthInteract <-    lm(Volume ~ Family.name:total.cubed.root + Family.name + total.cubed.root                         , data = mm)
 
 anova(mFamPopLengthInteract, mPopLengthInteract, mFamPopInteract, mFamLengthInteract)
+anova(mFamPopLengthInteract, mFamLengthInteract)
+
 # After this anova, we see that mFamLengthInteract is the best model.
 # This may indicate that population designation doesn't matter.
 
@@ -188,12 +201,19 @@ anova(mFamPopLengthInteract, mPopLengthInteract, mFamPopInteract, mFamLengthInte
 par(mfcol = c(2,2))
 plot(mFamLengthInteract) 
 par(mfcol = c(1,1))
-
 # By inspecting the plots, we see that the Residuals vs Fitted plot shows 
 # that the mean of the Residals for each population is quite close to 0.
 # The Normal Q-Q plot also shows that the data fits along the diagonal 
-# quite well. The Residual vs Leverage plot shows that the population residuals
-# don't have a major effect on the slope.
+# somewhat well.
+
+# 6 Report Parameters
+confint(mFamLengthInteract)
+coef(mFamLengthInteract)
+summary(mFamLengthInteract)
+
+# 7 Report Test Results
+summary(mFamLengthInteract)
+
 
 
 
